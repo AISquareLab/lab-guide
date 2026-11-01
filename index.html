@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI²Lab Handbook</title>
+<meta name="description" content="AI²Lab 論文發布流程：GitHub Repo、Project Page、arXiv、Hugging Face 與實驗室 NAS 使用說明">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f3efe6;
+  --paper-2: #ebe6da;
+  --ink: #151413;
+  --ink-2: #5d5850;
+  --rule: #151413;
+  --hair: rgba(21, 20, 19, .14);
+  --grid: rgba(21, 20, 19, .055);
+  --accent: #ff4a1c;
+  --accent-ink: #151413;
+  --code-bg: #151413;
+  --code-fg: #f3efe6;
+  --serif: "Noto Serif TC", "Songti TC", serif;
+  --sans: "Noto Sans TC", -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --bar: 52px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #12110f;
+    --paper-2: #1b1a17;
+    --ink: #eee8dc;
+    --ink-2: #a39d91;
+    --rule: #eee8dc;
+    --hair: rgba(238, 232, 220, .16);
+    --grid: rgba(238, 232, 220, .045);
+    --accent: #ff5a2e;
+    --accent-ink: #12110f;
+    --code-bg: #24221e;
+    --code-fg: #eee8dc;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #12110f;
+  --paper-2: #1b1a17;
+  --ink: #eee8dc;
+  --ink-2: #a39d91;
+  --rule: #eee8dc;
+  --hair: rgba(238, 232, 220, .16);
+  --grid: rgba(238, 232, 220, .045);
+  --accent: #ff5a2e;
+  --accent-ink: #12110f;
+  --code-bg: #24221e;
+  --code-fg: #eee8dc;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--bar) + 24px); }
+body {
+  margin: 0;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--accent); color: var(--accent-ink); }
+a { color: inherit; text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+a:hover { background: var(--accent); color: var(--accent-ink); text-decoration: none; }
+b, strong { font-weight: 700; }
+code {
+  font-family: var(--mono);
+  font-size: .84em;
+  padding: .1em .38em;
+  border: 1px solid var(--hair);
+  background: var(--paper-2);
+  border-radius: 3px;
+  overflow-wrap: anywhere;
+}
+a code { background: transparent; border-color: transparent; padding: 0; }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 40px; }
+.mono { font-family: var(--mono); }
+
+/* ---------- top bar ---------- */
+.bar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--bar);
+  z-index: 20;
+  background: var(--paper);
+  border-bottom: 1.5px solid var(--rule);
+}
+.bar .wrap { height: 100%; display: flex; align-items: center; gap: 24px; }
+.bar .logo {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .08em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.bar .logo span { color: var(--accent); }
+.bar .logo:hover { background: none; color: inherit; }
+.bar nav { margin-left: auto; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.bar nav::-webkit-scrollbar { display: none; }
+.bar nav a {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-decoration: none;
+  padding: 5px 10px;
+  white-space: nowrap;
+  border: 1.5px solid transparent;
+}
+.bar nav a i { font-style: normal; color: var(--ink-2); margin-right: 6px; }
+.bar nav a.active { border-color: var(--rule); }
+.bar nav a.active i, .bar nav a:hover i { color: inherit; }
+.progress { position: absolute; left: 0; bottom: -1.5px; height: 3px; width: 0; background: var(--accent); }
+
+/* ---------- hero ---------- */
+.hero { padding: calc(var(--bar) + 72px) 0 0; }
+.kicker {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.kicker::before { content: ""; width: 10px; height: 10px; background: var(--accent); display: inline-block; }
+.hero h1 {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: clamp(64px, 12vw, 168px);
+  line-height: .98;
+  letter-spacing: -.02em;
+  margin: 28px 0 0;
+}
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero-foot {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 48px;
+  margin-top: 48px;
+  padding: 24px 0 56px;
+  border-top: 1.5px solid var(--rule);
+}
+.hero-foot p { margin: 0; font-size: 18px; max-width: 34em; }
+.spec { display: grid; grid-template-columns: auto 1fr; gap: 6px 20px; font-family: var(--mono); font-size: 13px; align-content: start; }
+.spec dt { color: var(--ink-2); }
+.spec dd { margin: 0; }
+
+/* ---------- index ---------- */
+.index { border-top: 1.5px solid var(--rule); margin-bottom: 40px; }
+.index a {
+  display: grid;
+  grid-template-columns: 120px 1fr 1.1fr 48px;
+  align-items: center;
+  gap: 24px;
+  padding: 22px 16px;
+  border-bottom: 1.5px solid var(--rule);
+  text-decoration: none;
+  position: relative;
+  transition: background .18s, color .18s, padding .18s;
+}
+.index a:hover { background: var(--accent); color: var(--accent-ink); padding-left: 28px; }
+.index .n {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 44px;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--ink);
+}
+.index a:hover .n { -webkit-text-stroke-color: var(--accent-ink); }
+.index .t { font-family: var(--serif); font-weight: 900; font-size: clamp(26px, 3.4vw, 44px); line-height: 1.1; }
+.index .d { color: var(--ink-2); font-size: 15px; }
+.index a:hover .d { color: var(--accent-ink); }
+.index .arr { font-family: var(--mono); font-size: 26px; justify-self: end; transition: transform .18s; }
+.index a:hover .arr { transform: translateX(6px); }
+
+/* ---------- chapters ---------- */
+.chapter {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 64px;
+  padding: 96px 0 40px;
+  border-top: 1.5px solid var(--rule);
+}
+.chapter aside { position: relative; }
+.chapter .sticky { position: sticky; top: calc(var(--bar) + 32px); }
+.chapter .no {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 120px;
+  line-height: .85;
+  color: var(--accent);
+  letter-spacing: -.04em;
+}
+.chapter h2 {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 44px;
+  line-height: 1.12;
+  margin: 18px 0 16px;
+}
+.chapter .lede { color: var(--ink-2); margin: 0 0 22px; }
+.chips { display: flex; flex-direction: column; gap: 8px; }
+.chip {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--rule);
+  background: var(--paper);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.chip span:last-child { flex: none; }
+.chip:hover { box-shadow: 4px 4px 0 var(--rule); transform: translate(-2px, -2px); }
+
+.body h3 {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+  padding-bottom: 10px;
+  border-bottom: 1.5px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+}
+.body h3 + * { margin-top: 0; }
+.body .block + .block { margin-top: 64px; }
+.body p { margin: 12px 0; }
+
+/* steps */
+ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+ol.steps > li {
+  counter-increment: s;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 0 16px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--hair);
+}
+ol.steps > li::before {
+  content: counter(s, decimal-leading-zero);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  padding-top: 6px;
+  color: var(--ink-2);
+}
+ol.steps > li:hover::before { color: var(--accent); }
+ol.steps > li > div > strong:first-child { display: block; font-size: 18px; line-height: 1.5; margin-bottom: 4px; }
+ul.ticks { list-style: none; padding: 0; margin: 14px 0; }
+ul.ticks li { padding: 10px 0 10px 28px; border-bottom: 1px solid var(--hair); position: relative; }
+ul.ticks li::before { content: "→"; position: absolute; left: 0; font-family: var(--mono); color: var(--accent); }
+
+/* figures */
+figure { margin: 18px 0 6px; }
+figure img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  background: #fff;
+  border: 1.5px solid var(--rule);
+  box-shadow: 8px 8px 0 var(--rule);
+}
+figure.sm img { max-width: 520px; }
+figcaption { font-family: var(--mono); font-size: 12px; color: var(--ink-2); margin-top: 16px; }
+figcaption::before { content: "FIG — "; color: var(--accent); }
+.figrow { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+
+/* notes */
+.note {
+  position: relative;
+  margin: 28px 0 8px;
+  padding: 22px 20px 16px;
+  border: 1.5px solid var(--rule);
+  background: var(--paper);
+}
+.note::before {
+  content: attr(data-label);
+  position: absolute;
+  top: -11px;
+  left: 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  padding: 2px 8px;
+  background: var(--ink);
+  color: var(--paper);
+}
+.note.hot { background: var(--accent); color: var(--accent-ink); border-color: var(--accent-ink); }
+.note.hot::before { background: var(--accent-ink); color: var(--accent); }
+.note.hot code { background: rgba(255, 255, 255, .25); border-color: transparent; color: inherit; }
+.note p { margin: 4px 0; }
+.note > strong:first-child { display: block; font-size: 17px; margin-bottom: 4px; }
+
+pre {
+  background: var(--code-bg);
+  color: var(--code-fg);
+  padding: 18px 20px;
+  margin: 14px 0 4px;
+  overflow-x: auto;
+  line-height: 1.7;
+  border-left: 4px solid var(--accent);
+}
+pre code { background: none; border: 0; padding: 0; font-size: 13px; color: inherit; overflow-wrap: normal; }
+.cmd { display: block; margin-top: 8px; }
+
+table { width: 100%; border-collapse: collapse; margin: 16px 0 4px; font-size: 15px; }
+th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--hair); vertical-align: top; }
+th { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; font-weight: 700; border-bottom: 1.5px solid var(--rule); }
+td:first-child { width: 90px; }
+
+/* checklist */
+.checklist { list-style: none; padding: 0; margin: 0; counter-reset: c; }
+.checklist li { border-bottom: 1px solid var(--hair); }
+.checklist label {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 16px;
+  padding: 14px 4px;
+  cursor: pointer;
+  align-items: start;
+}
+.checklist input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin: 3px 0 0;
+  border: 1.5px solid var(--rule);
+  background: var(--paper);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.checklist input::after { content: "✕"; font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--accent-ink); opacity: 0; }
+.checklist input:checked { background: var(--accent); border-color: var(--accent); }
+.checklist input:checked::after { opacity: 1; }
+.checklist input:checked + span { text-decoration: line-through; text-decoration-color: var(--accent); text-decoration-thickness: 2px; color: var(--ink-2); }
+.checklist input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tally { font-family: var(--mono); font-weight: 700; font-size: 64px; line-height: 1; margin-top: 20px; }
+.tally small { font-size: 18px; color: var(--ink-2); }
+
+/* footer */
+.foot {
+  margin-top: 96px;
+  background: var(--ink);
+  color: var(--paper);
+}
+.foot .wrap { padding-top: 48px; padding-bottom: 48px; display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; }
+.foot .big { font-family: var(--serif); font-weight: 900; font-size: clamp(36px, 6vw, 72px); line-height: 1; }
+.foot .big em { font-style: normal; color: var(--accent); }
+.foot p { margin: 0; font-family: var(--mono); font-size: 12px; max-width: 36em; opacity: .8; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 960px) {
+  .chapter { grid-template-columns: 1fr; gap: 28px; padding-top: 64px; }
+  .chapter .sticky { position: static; }
+  .chapter .no { font-size: 80px; }
+  .chapter h2 { font-size: 36px; }
+  .chips { flex-direction: row; flex-wrap: wrap; }
+}
+@media (max-width: 720px) {
+  .wrap { padding: 0 16px; }
+  .bar .logo { font-size: 12px; }
+  .hero { padding-top: calc(var(--bar) + 40px); }
+  .hero-foot { grid-template-columns: 1fr; gap: 24px; margin-top: 32px; }
+  .hero-foot p { font-size: 16px; }
+  .index a { grid-template-columns: 52px 1fr 24px; gap: 4px 14px; padding: 18px 8px; }
+  .index a:hover { padding-left: 14px; }
+  .index .n { font-size: 26px; grid-row: span 2; align-self: start; padding-top: 4px; }
+  .index .d { grid-column: 2; font-size: 14px; }
+  .index .arr { grid-column: 3; grid-row: 1; font-size: 20px; }
+  ol.steps > li { grid-template-columns: 36px minmax(0, 1fr); gap: 0 8px; }
+  figure img { box-shadow: 5px 5px 0 var(--rule); }
+  figure.sm img { max-width: 100%; }
+  .figrow { grid-template-columns: 1fr; }
+  .chip { flex: 1 1 100%; }
+  td:first-child { width: 72px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="#top">AI<span>²</span>LAB / HANDBOOK</a>
+    <nav aria-label="章節">
+      <a href="#github"><i>01</i>GitHub</a>
+      <a href="#project-page"><i>02</i>Project Page</a>
+      <a href="#arxiv"><i>03</i>arXiv</a>
+      <a href="#huggingface"><i>04</i>Hugging Face</a>
+      <a href="#nas"><i>05</i>NAS</a>
+      <a href="#checklist"><i>06</i>Checklist</a>
+    </nav>
+  </div>
+  <div class="progress" id="progress"></div>
+</header>
+
+<main id="top">
+
+<section class="hero">
+  <div class="wrap">
+    <div class="kicker">AI²Lab · Research Release Handbook</div>
+    <h1>研究發布<br>指南<em>.</em></h1>
+    <div class="hero-foot">
+      <p>論文被接受之後要做的事，以及實驗室 NAS 的使用方式，全部整理在這一頁。照著做就不會漏掉；有問題直接找管理員。</p>
+      <dl class="spec">
+        <dt>維護者</dt><dd>Wei-Hua Li</dd>
+        <dt>聯絡</dt><dd><a href="mailto:d12922009@csie.ntu.edu.tw">d12922009@csie.ntu.edu.tw</a></dd>
+        <dt>GitHub</dt><dd>AI-Application-and-Integration-Lab</dd>
+        <dt>HF</dt><dd>AI2Lab-NTU</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <nav class="index" aria-label="目錄">
+      <a href="#github"><span class="n">01</span><span class="t">GitHub Repo</span><span class="d">程式碼放在實驗室 Organization，設定 email 通知</span><span class="arr">→</span></a>
+      <a href="#project-page"><span class="n">02</span><span class="t">Project Page</span><span class="d">照模板寫好 html，交給管理員上架</span><span class="arr">→</span></a>
+      <a href="#arxiv"><span class="n">03</span><span class="t">arXiv</span><span class="d">附上 code 連結，連同 .bbl 一起上傳</span><span class="arr">→</span></a>
+      <a href="#huggingface"><span class="n">04</span><span class="t">Hugging Face</span><span class="d">上傳權重，連結補回 GitHub README</span><span class="arr">→</span></a>
+      <a href="#nas"><span class="n">05</span><span class="t">NAS</span><span class="d">申請帳號、建立個人資料夾、附上 README</span><span class="arr">→</span></a>
+      <a href="#checklist"><span class="n">06</span><span class="t">Checklist</span><span class="d">發布前最後檢查一遍</span><span class="arr">→</span></a>
+    </nav>
+  </div>
+</section>
+
+<!-- ============ GitHub ============ -->
+<div class="wrap">
+<section class="chapter" id="github">
+  <aside><div class="sticky">
+    <div class="no">01</div>
+    <h2>GitHub Repo</h2>
+    <p class="lede">論文的程式碼統一放在實驗室的 Organization 底下，不要放在個人帳號。</p>
+    <div class="chips">
+      <a class="chip" href="https://github.com/AI-Application-and-Integration-Lab" target="_blank" rel="noopener"><span>AI-Application-and-Integration-Lab</span><span>↗</span></a>
+      <a class="chip" href="https://docs.google.com/document/d/16VyphVtslpeNhNDceseFqx_0rnM8A-9Ak_HyYWzrSQo/edit?tab=t.0#heading=h.t7kspc84w3jf" target="_blank" rel="noopener"><span>詳細文件（Google Doc）</span><span>↗</span></a>
+    </div>
+  </div></aside>
+
+  <div class="body">
+    <div class="block">
+      <h3><span>建立 Repository</span><span>A</span></h3>
+      <ol class="steps">
+        <li><div><strong>寄信申請加入 Organization</strong>寄信到 <a href="mailto:d12922009@csie.ntu.edu.tw?subject=%5BAI2Lab%20GitHub%5D%20%E7%94%B3%E8%AB%8B%E5%8A%A0%E5%85%A5%20Organization"><code>d12922009@csie.ntu.edu.tw</code></a>，信中附上你的 <b>GitHub 帳號</b>。管理員會把你加入 <code>AI-Application-and-Integration-Lab</code>。</div></li>
+        <li><div><strong>用個人帳號新增 repository</strong>登入個人帳號，和平常建立 repo 一樣點擊 <b>New repository</b>。</div></li>
+        <li><div>
+          <strong>Owner 選擇 AI-Application-and-Integration-Lab</strong>其餘步驟（命名、Public / Private、README 等）和一般建立個人 repo 相同。
+          <figure class="sm"><img src="assets/img/github-new-repo.png" alt="GitHub 建立 repository 畫面，Owner 欄位選擇實驗室 Organization" loading="lazy"><figcaption>Owner 欄位選實驗室的 Organization</figcaption></figure>
+        </div></li>
+      </ol>
+      <div class="note" data-label="注意">
+        <strong>Organization ≠ 實驗室網站</strong>
+        <p>程式碼 repo 放在 <code>AI-Application-and-Integration-Lab</code>。<code>AISquareLab</code> 是放實驗室網站與 <a href="#project-page">Project Page</a> 的帳號，不要把論文 repo 開在那裡。</p>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3><span>設定 Email 通知</span><span>B</span></h3>
+      <p>repo 公開之後，會有人開 issue 或發 PR。請讓相關作者都能用 email 收到通知，免得漏看。</p>
+      <ol class="steps">
+        <li><div><strong>登入要接收通知的帳號</strong></div></li>
+        <li><div>
+          <strong>到對應 repo 點右上角 Watch → Custom</strong>勾選要接收的事件（Issues、Pull requests…），或直接選 <b>All Activity</b>。
+          <figure><img src="assets/img/github-watch.png" alt="GitHub Watch 選單與 Custom 事件勾選畫面" loading="lazy"><figcaption>Watch → Custom，勾選 Issues、Pull requests</figcaption></figure>
+        </div></li>
+        <li><div><strong>點右上角頭像 → Settings → Notifications</strong>確認 <b>Watching</b> 有勾選 <b>Email</b>，並確認通知寄到你常用的信箱。</div></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Project Page ============ -->
+<section class="chapter" id="project-page">
+  <aside><div class="sticky">
+    <div class="no">02</div>
+    <h2>Project Page</h2>
+    <p class="lede">每篇論文都有一個 project page，放在實驗室網站底下。</p>
+    <div class="chips">
+      <a class="chip" href="https://github.com/AISquareLab/aisquarelab.github.io" target="_blank" rel="noopener"><span>模板：aisquarelab.github.io</span><span>↗</span></a>
+      <a class="chip" href="https://docs.google.com/document/d/14OKrJ9X1elflGLah4KWh_kogBvvHYBdi2CyIJ4ZSR-U/edit?usp=sharing" target="_blank" rel="noopener"><span>詳細文件（Google Doc）</span><span>↗</span></a>
+    </div>
+  </div></aside>
+
+  <div class="body">
+    <div class="block">
+      <h3><span>製作與上架</span><span>A</span></h3>
+      <ol class="steps">
+        <li><div><strong>參考模板寫好 html</strong>模板與現有範例都在 <a href="https://github.com/AISquareLab/aisquarelab.github.io" target="_blank" rel="noopener">AISquareLab/aisquarelab.github.io</a>。頁面通常包含：標題、作者、會議名稱、Paper / Code / Poster 連結、Abstract。</div></li>
+        <li><div><strong>把 html 交給實驗室管理員</strong>由管理員放上實驗室網站。</div></li>
+      </ol>
+      <div class="figrow">
+        <figure><img src="assets/img/projectpage-example.png" alt="SAM4MLLM project page 範例畫面" loading="lazy"><figcaption>範例：SAM4MLLM（ECCV 2024）</figcaption></figure>
+        <figure><img src="assets/img/projectpage-code.png" alt="project page 的 html 原始碼" loading="lazy"><figcaption>對應的 html 原始碼</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ arXiv ============ -->
+<section class="chapter" id="arxiv">
+  <aside><div class="sticky">
+    <div class="no">03</div>
+    <h2>arXiv 投稿</h2>
+    <p class="lede">一律上傳 LaTeX 原始檔，不要只傳 PDF。arXiv 上公開的內容<b>不能刪除</b>，上傳前請仔細檢查。</p>
+    <div class="chips">
+      <a class="chip" href="https://arxiv.org/user/" target="_blank" rel="noopener"><span>arXiv 登入</span><span>↗</span></a>
+      <a class="chip" href="https://arxiv.org/category_taxonomy" target="_blank" rel="noopener"><span>Category Taxonomy</span><span>↗</span></a>
+    </div>
+  </div></aside>
+
+  <div class="body">
+    <div class="block">
+      <h3><span>上傳前先改論文</span><span>A</span></h3>
+      <ul class="ticks">
+        <li><b>移除 acknowledgement</b></li>
+        <li><b>在 abstract 加上 code 連結</b>，指向剛剛建立的 GitHub repo。</li>
+        <li>檢查 <code>.tex</code> 裡有沒有不想公開的註解，arXiv 會公開原始檔。</li>
+      </ul>
+      <figure class="sm"><img src="assets/img/arxiv-abstract-link.png" alt="論文 abstract 結尾加上 Our code is available on GitHub 連結" loading="lazy"><figcaption>abstract 結尾加上 “Our code is available on GitHub.”</figcaption></figure>
+    </div>
+
+    <div class="block">
+      <h3><span>投稿流程</span><span>B</span></h3>
+      <ol class="steps">
+        <li><div>
+          <strong>登入 arXiv → START NEW SUBMISSION</strong>
+          <figure class="sm"><img src="assets/img/arxiv-new-submission.png" alt="arXiv 帳號頁面中的 START NEW SUBMISSION 按鈕" loading="lazy"></figure>
+        </div></li>
+        <li><div>
+          <strong>選擇 License</strong>選了之後<b>無法更改</b>。下方範例選的是 CC BY-NC-SA。
+          <figure><img src="assets/img/arxiv-license.png" alt="arXiv License Statement 選項，選擇 CC BY-NC-SA" loading="lazy"></figure>
+        </div></li>
+        <li><div>
+          <strong>選擇分類</strong>依論文主題選一個主分類，可以再加 cross-list。
+          <table>
+            <thead><tr><th>分類</th><th>適用範圍</th></tr></thead>
+            <tbody>
+              <tr><td><code>cs.CV</code></td><td>影像處理、電腦視覺、pattern recognition、scene understanding</td></tr>
+              <tr><td><code>cs.CL</code></td><td>自然語言處理（NLP）</td></tr>
+              <tr><td><code>cs.AI</code></td><td>其他 AI 領域（Vision、Robotics、ML、Multiagent、NLP 都有各自的分類，不屬於 cs.AI）</td></tr>
+            </tbody>
+          </table>
+        </div></li>
+        <li><div>
+          <strong>上傳檔案</strong>上傳 <code>main.tex</code>、<code>main.bib</code>、圖片，以及 <b><code>main.bbl</code></b>。也可以壓成 <code>.zip</code> / <code>.tar.gz</code> 一次上傳，arXiv 會自動解壓縮。
+          <figure class="sm"><img src="assets/img/arxiv-file-list.png" alt="arXiv 上傳的檔案列表：main.bbl、main.bib、main.tex" loading="lazy"></figure>
+          <div class="note hot" data-label="最常出錯">
+            <strong>記得上傳 .bbl</strong>
+            <p>arXiv 不會跑 BibTeX，少了 <code>.bbl</code> 參考文獻會變成問號。從 Overleaf 取得：<b>Logs and output files</b> → <b>Other logs and files</b> → 下載 <code>output.bbl</code>，<b>改名成跟 tex 檔同名</b>（例如 <code>main.bbl</code>）。</p>
+          </div>
+          <div class="figrow">
+            <figure><img src="assets/img/overleaf-logs-btn.png" alt="Overleaf 的 Logs and output files 按鈕" loading="lazy"><figcaption>Overleaf：Logs and output files</figcaption></figure>
+            <figure><img src="assets/img/overleaf-output-bbl.png" alt="Overleaf 選單中的 output.bbl" loading="lazy"><figcaption>下載 output.bbl</figcaption></figure>
+          </div>
+        </div></li>
+        <li><div>
+          <strong>確認 Submission processed OK，填寫 metadata</strong>Title、Authors、Abstract 照論文填寫。<b>Comments</b> 填會議資訊，例如 <code>ECCV 2024</code>。
+          <figure><img src="assets/img/arxiv-metadata.png" alt="arXiv metadata 表單，Comments 欄位填寫 ECCV 2024" loading="lazy"></figure>
+        </div></li>
+        <li><div><strong>Preview PDF，確認無誤後送出</strong></div></li>
+        <li><div><strong>審核通過後通知老師</strong>把 arXiv 寄來的審核通過信 <b>cc 給老師</b>，告訴老師已經上傳好了。</div></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Hugging Face ============ -->
+<section class="chapter" id="huggingface">
+  <aside><div class="sticky">
+    <div class="no">04</div>
+    <h2>Hugging Face</h2>
+    <p class="lede">模型權重放在實驗室的 Hugging Face Organization。上傳後記得把連結補回 GitHub README。</p>
+    <div class="chips">
+      <a class="chip" href="https://huggingface.co/AI2Lab-NTU" target="_blank" rel="noopener"><span>AI2Lab-NTU</span><span>↗</span></a>
+      <a class="chip" href="https://huggingface.co/organizations/AI2Lab-NTU/share/UwDFuMPEzjbyLYFdJwIuxeeTmggFXPBWvg" target="_blank" rel="noopener"><span>加入 Organization</span><span>↗</span></a>
+    </div>
+  </div></aside>
+
+  <div class="body">
+    <div class="block">
+      <h3><span>上傳模型權重</span><span>A</span></h3>
+      <ol class="steps">
+        <li><div><strong>透過邀請連結加入 AI2Lab-NTU</strong>先登入自己的 HF 帳號，再打開<a href="https://huggingface.co/organizations/AI2Lab-NTU/share/UwDFuMPEzjbyLYFdJwIuxeeTmggFXPBWvg" target="_blank" rel="noopener">邀請連結</a>加入。</div></li>
+        <li><div><strong>New Model，Owner 選 AI2Lab-NTU</strong>repo 名稱建議和 GitHub repo 相同。</div></li>
+        <li><div>
+          <strong>上傳權重</strong>用網頁上傳，或用 CLI：
+          <pre><code>huggingface-cli login
+huggingface-cli upload AI2Lab-NTU/&lt;repo&gt; ./checkpoints</code></pre>
+        </div></li>
+        <li><div>
+          <strong>把 HF 連結補回 GitHub README</strong>讓看 code 的人找得到權重，例如：
+          <pre><code>## Model Weights
+Download the pretrained weights from Hugging Face:
+https://huggingface.co/AI2Lab-NTU/&lt;repo&gt;</code></pre>
+        </div></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NAS ============ -->
+<section class="chapter" id="nas">
+  <aside><div class="sticky">
+    <div class="no">05</div>
+    <h2>實驗室 NAS</h2>
+    <p class="lede">實驗室的 Synology NAS（AILab542），用來存放資料集、checkpoint 和實驗結果。</p>
+    <div class="chips">
+      <a class="chip" href="mailto:d12922009@csie.ntu.edu.tw?subject=%5BAI2Lab%20NAS%5D%20%E7%94%B3%E8%AB%8B%E5%B8%B3%E8%99%9F"><span>寄信申請帳號</span><span>✉</span></a>
+    </div>
+  </div></aside>
+
+  <div class="body">
+    <div class="block">
+      <h3><span>開始使用</span><span>A</span></h3>
+      <ol class="steps">
+        <li><div><strong>寄信申請帳號</strong>寄信到 <a href="mailto:d12922009@csie.ntu.edu.tw?subject=%5BAI2Lab%20NAS%5D%20%E7%94%B3%E8%AB%8B%E5%B8%B3%E8%99%9F"><code>d12922009@csie.ntu.edu.tw</code></a>，信中附上你的姓名與學號。</div></li>
+        <li><div><strong>照開通信登入並修改密碼</strong>管理員建立帳號後會寄信給你，信裡附有 NAS 連結。照著信中的步驟登入，並先<b>修改密碼</b>。</div></li>
+        <li><div>
+          <strong>在 Users 底下建立自己的資料夾</strong>打開 File Station，進入 <code>Users</code>，點 <b>建立 → 建立資料夾</b>，用<b>學號</b>命名（例如 <code>r13922056</code>）。個人的檔案請放在自己的資料夾裡。
+          <figure><img src="assets/img/nas-users-folder.png" alt="Synology File Station 中 AILab542 的 Users 資料夾，裡面是以學號命名的個人資料夾" loading="lazy"><figcaption>File Station → AILab542 → Users</figcaption></figure>
+        </div></li>
+      </ol>
+    </div>
+
+    <div class="block">
+      <h3><span>上傳規則</span><span>B</span></h3>
+      <div class="note hot" data-label="規定">
+        <strong>上傳的東西都要附上 README</strong>
+        <p>每個上傳的資料夾（資料集、checkpoint、實驗結果）都要放一份 <code>README.md</code>，讓之後的學弟妹看得懂這是什麼、怎麼用。</p>
+      </div>
+      <p>可以參考這個格式：</p>
+      <pre><code># &lt;資料夾名稱&gt;
+
+- 上傳者：王小明（r13922056）
+- 日期：2026-11-01
+- 對應論文 / 專案：&lt;論文名稱或 GitHub repo 連結&gt;
+
+## 內容
+這個資料夾放的是什麼、怎麼產生的。
+
+## 檔案結構
+- ckpt/        訓練好的權重
+- results/     實驗結果
+- data/        前處理後的資料
+
+## 使用方式
+怎麼讀取或重現（指令、對應的 code）。</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Checklist ============ -->
+<section class="chapter" id="checklist">
+  <aside><div class="sticky">
+    <div class="no">06</div>
+    <h2>發布 Checklist</h2>
+    <p class="lede">論文被接受後照著勾一遍。勾選狀態只會存在你自己的瀏覽器裡。</p>
+    <div class="tally"><span id="done">0</span><small> / <span id="total">10</span></small></div>
+  </div></aside>
+
+  <div class="body">
+    <ul class="checklist" id="cl">
+      <li><label><input type="checkbox" id="c1"><span>已加入 GitHub Organization（AI-Application-and-Integration-Lab）與 HF Organization（AI2Lab-NTU）</span></label></li>
+      <li><label><input type="checkbox" id="c2"><span>在 Organization 下建立 repo，README 寫好</span></label></li>
+      <li><label><input type="checkbox" id="c3"><span>所有作者都設定好 Watch 與 email 通知</span></label></li>
+      <li><label><input type="checkbox" id="c4"><span>Project page html 寫好並交給管理員</span></label></li>
+      <li><label><input type="checkbox" id="c5"><span>論文移除 acknowledgement、abstract 加上 code 連結</span></label></li>
+      <li><label><input type="checkbox" id="c6"><span>arXiv 上傳（含 .bbl），Comments 填會議名稱</span></label></li>
+      <li><label><input type="checkbox" id="c7"><span>arXiv 審核通過信 cc 給老師</span></label></li>
+      <li><label><input type="checkbox" id="c8"><span>模型權重上傳到 HF（AI2Lab-NTU），並把連結補回 GitHub README</span></label></li>
+      <li><label><input type="checkbox" id="c9"><span>GitHub README 補上 arXiv、Project Page、HF 連結</span></label></li>
+      <li><label><input type="checkbox" id="c10"><span>實驗資料與 checkpoint 備份到 NAS，並附上 README</span></label></li>
+    </ul>
+  </div>
+</section>
+</div>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="big">AI<em>²</em>Lab</div>
+    <p>維護者：Wei-Hua Li · 內容有誤或過時，請直接在本 repo 開 issue 或發 PR。</p>
+  </div>
+</footer>
+
+<script>
+// checklist state, per browser only
+var boxes = document.querySelectorAll('#cl input');
+function tally() {
+  var n = 0;
+  boxes.forEach(function (b) { if (b.checked) n++; });
+  document.getElementById('done').textContent = n;
+  document.getElementById('total').textContent = boxes.length;
+}
+boxes.forEach(function (box) {
+  try { box.checked = localStorage.getItem('ai2lab-' + box.id) === '1'; } catch (e) {}
+  box.addEventListener('change', function () {
+    try { localStorage.setItem('ai2lab-' + box.id, box.checked ? '1' : '0'); } catch (e) {}
+    tally();
+  });
+});
+tally();
+
+// reading progress
+var bar = document.getElementById('progress');
+function onScroll() {
+  var h = document.documentElement;
+  var max = h.scrollHeight - h.clientHeight;
+  bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+
+// highlight current chapter in the top bar
+var links = document.querySelectorAll('.bar nav a');
+var map = {};
+links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+var obs = new IntersectionObserver(function (entries) {
+  entries.forEach(function (e) {
+    var a = map[e.target.id];
+    if (!a) return;
+    if (e.isIntersecting) {
+      links.forEach(function (l) { l.classList.remove('active'); });
+      a.classList.add('active');
+      a.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+document.querySelectorAll('.chapter').forEach(function (s) { obs.observe(s); });
+</script>
+</body>
+</html>
